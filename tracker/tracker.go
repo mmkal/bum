@@ -16,9 +16,9 @@
 package tracker
 
 import (
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deps"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deps"
 	"github.com/pkg/errors"
 )
 
@@ -27,8 +27,8 @@ func init() {
 }
 
 // getTrackers returns a list of trackers specified in the configuration
-func getTrackers(cfg *config.Monkey) ([]chaosmonkey.Tracker, error) {
-	var result []chaosmonkey.Tracker
+func getTrackers(cfg *config.Bum) ([]chaosbum.Tracker, error) {
+	var result []chaosbum.Tracker
 
 	kinds, err := cfg.Trackers()
 	if err != nil {
@@ -47,7 +47,7 @@ func getTrackers(cfg *config.Monkey) ([]chaosmonkey.Tracker, error) {
 
 // getTracker returns a tracker by name
 // No trackers have been implemented yet
-func getTracker(kind string, cfg *config.Monkey) (chaosmonkey.Tracker, error) {
+func getTracker(kind string, cfg *config.Bum) (chaosbum.Tracker, error) {
 	switch kind {
 	// As trackers are contributed to the open source project, they should
 	// be instantiated here

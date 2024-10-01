@@ -22,17 +22,17 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/deploy"
-	"github.com/Netflix/chaosmonkey/v2/deps"
-	"github.com/Netflix/chaosmonkey/v2/eligible"
-	"github.com/Netflix/chaosmonkey/v2/grp"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/deploy"
+	"github.com/Netflix/chaosbum/v2/deps"
+	"github.com/Netflix/chaosbum/v2/eligible"
+	"github.com/Netflix/chaosbum/v2/grp"
 )
 
 type leashedKiller struct {
 }
 
-func (l leashedKiller) Execute(trm chaosmonkey.Termination) error {
+func (l leashedKiller) Execute(trm chaosbum.Termination) error {
 	log.Printf("leashed=true, not killing instance %s", trm.Instance.ID())
 	return nil
 }
@@ -42,7 +42,7 @@ func (l leashedKiller) Execute(trm chaosmonkey.Termination) error {
 type UnleashedInTestEnv struct{}
 
 func (err UnleashedInTestEnv) Error() string {
-	return "not terminating: Chaos Monkey may not run unleashed in the test environment"
+	return "not terminating: Chaos Bum may not run unleashed in the test environment"
 }
 
 // Terminate executes the "terminate" command. This selects an instance
@@ -50,9 +50,9 @@ func (err UnleashedInTestEnv) Error() string {
 //
 // region, stack, and cluster may be blank
 func Terminate(d deps.Deps, app string, account string, region string, stack string, cluster string) error {
-	enabled, err := d.MonkeyCfg.Enabled()
+	enabled, err := d.BumCfg.Enabled()
 	if err != nil {
-		return errors.Wrap(err, "not terminating: could not determine if monkey is enabled")
+		return errors.Wrap(err, "not terminating: could not determine if bum is enabled")
 	}
 
 	if !enabled {
@@ -72,14 +72,14 @@ func Terminate(d deps.Deps, app string, account string, region string, stack str
 		return nil
 	}
 
-	accountEnabled, err := d.MonkeyCfg.AccountEnabled(account)
+	accountEnabled, err := d.BumCfg.AccountEnabled(account)
 
 	if err != nil {
 		return errors.Wrap(err, "not terminating: could not determine if account is enabled")
 	}
 
 	if !accountEnabled {
-		log.Printf("Not terminating: account=%s is not enabled in Chaos Monkey", account)
+		log.Printf("Not terminating: account=%s is not enabled in Chaos Bum", account)
 		return nil
 	}
 
@@ -93,7 +93,7 @@ func Terminate(d deps.Deps, app string, account string, region string, stack str
 
 // doTerminate does the actual termination
 func doTerminate(d deps.Deps, group grp.InstanceGroup) error {
-	leashed, err := d.MonkeyCfg.Leashed()
+	leashed, err := d.BumCfg.Leashed()
 
 	if err != nil {
 		return errors.Wrap(err, "not terminating: could not determine leashed status")
@@ -102,15 +102,15 @@ func doTerminate(d deps.Deps, group grp.InstanceGroup) error {
 	/*
 		Do not allow running unleashed in the test environment.
 
-		The prod deployment of chaos monkey is responsible for killing instances
-		across environments, including test. We want to ensure that Chaos Monkey
+		The prod deployment of chaos bum is responsible for killing instances
+		across environments, including test. We want to ensure that Chaos Bum
 		running in test cannot do harm.
 	*/
 	if d.Env.InTest() && !leashed {
 		return UnleashedInTestEnv{}
 	}
 
-	var killer chaosmonkey.Terminator
+	var killer chaosbum.Terminator
 
 	if leashed {
 		killer = leashedKiller{}
@@ -118,7 +118,7 @@ func doTerminate(d deps.Deps, group grp.InstanceGroup) error {
 		killer = d.T
 	}
 
-	// get Chaos Monkey config info for this app
+	// get Chaos Bum config info for this app
 	appName := group.App()
 	appCfg, err := d.ConfGetter.Get(appName)
 
@@ -144,17 +144,17 @@ func doTerminate(d deps.Deps, group grp.InstanceGroup) error {
 
 	log.Printf("Picked: %s", instance)
 
-	loc, err := d.MonkeyCfg.Location()
+	loc, err := d.BumCfg.Location()
 	if err != nil {
 		return errors.Wrap(err, "not terminating: could not retrieve location")
 	}
 
-	trm := chaosmonkey.Termination{Instance: instance, Time: d.Cl.Now(), Leashed: leashed}
+	trm := chaosbum.Termination{Instance: instance, Time: d.Cl.Now(), Leashed: leashed}
 
 	//
 	// Check that we don't violate min time between terminations
 	//
-	err = d.Checker.Check(trm, *appCfg, d.MonkeyCfg.EndHour(), loc)
+	err = d.Checker.Check(trm, *appCfg, d.BumCfg.EndHour(), loc)
 	if err != nil {
 		return errors.Wrap(err, "not terminating: check for min time between terminations failed")
 	}
@@ -181,7 +181,7 @@ func doTerminate(d deps.Deps, group grp.InstanceGroup) error {
 }
 
 // PickRandomInstance randomly selects an eligible instance from a group
-func PickRandomInstance(group grp.InstanceGroup, cfg chaosmonkey.AppConfig, dep deploy.Deployment) (chaosmonkey.Instance, bool) {
+func PickRandomInstance(group grp.InstanceGroup, cfg chaosbum.AppConfig, dep deploy.Deployment) (chaosbum.Instance, bool) {
 	instances, err := eligible.Instances(group, cfg.Exceptions, dep)
 	if err != nil {
 		log.Printf("WARNING: eligible.Instances failed for %s: %v", group, err)

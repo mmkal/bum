@@ -17,19 +17,19 @@ package term
 import (
 	"fmt"
 
-	"github.com/Netflix/chaosmonkey/v2"
+	"github.com/Netflix/chaosbum/v2"
 )
 
 // fake is a fake implementation of a terminator that just prints termination info but does nothing
 type fake struct{}
 
 // Fake returns a "fake" terminator that just outputs a message upon instance termination
-func Fake() chaosmonkey.Terminator {
+func Fake() chaosbum.Terminator {
 	return fake{}
 }
 
 // Kill implements Terminator.kill, pretends to terminate an instance
-func (t fake) Execute(trm chaosmonkey.Termination) error {
+func (t fake) Execute(trm chaosbum.Termination) error {
 	ins := trm.Instance
 	fmt.Printf("fakeTerminator fake-terminating: account=%s region=%s id=%s\n", ins.AccountName(), ins.RegionName(), ins.ID())
 	return nil
