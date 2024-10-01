@@ -6,8 +6,8 @@ Chronos, our event tracking system<sup>1</sup>.
 If you wish to record terminations with some external system, you need to:
 
 1. Give your tracker a name (e.g., "syslog")
-1. Code up a type in Go that implements the [Tracker](https://godoc.org/github.com/Netflix/chaosmonkey/#Tracker) interface.
-1. Modify [github.com/netflix/chaosmonkey/tracker/getTracker](https://github.com/Netflix/chaosmonkey/blob/master/tracker/tracker.go)
+1. Code up a type in Go that implements the [Tracker](https://godoc.org/github.com/Netflix/chaosbum/#Tracker) interface.
+1. Modify [github.com/netflix/chaosbum/tracker/getTracker](https://github.com/Netflix/chaosbum/blob/master/tracker/tracker.go)
    so that it recognizes your tracker.
 1. Edit your [config file](Configuration File Format) to specify your tracker.
 

@@ -25,16 +25,16 @@ import (
 
 	flag "github.com/spf13/pflag"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/clock"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/config/param"
-	"github.com/Netflix/chaosmonkey/v2/deploy"
-	"github.com/Netflix/chaosmonkey/v2/deps"
-	"github.com/Netflix/chaosmonkey/v2/mysql"
-	"github.com/Netflix/chaosmonkey/v2/schedstore"
-	"github.com/Netflix/chaosmonkey/v2/schedule"
-	"github.com/Netflix/chaosmonkey/v2/spinnaker"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/clock"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/config/param"
+	"github.com/Netflix/chaosbum/v2/deploy"
+	"github.com/Netflix/chaosbum/v2/deps"
+	"github.com/Netflix/chaosbum/v2/mysql"
+	"github.com/Netflix/chaosbum/v2/schedstore"
+	"github.com/Netflix/chaosbum/v2/schedule"
+	"github.com/Netflix/chaosbum/v2/spinnaker"
 )
 
 // Version is the version number
@@ -45,24 +45,24 @@ func printVersion() {
 }
 
 var (
-	// configPaths is where Chaos Monkey will look for a chaosmonkey.toml
+	// configPaths is where Chaos Bum will look for a chaosbum.toml
 	// configuration file
-	configPaths = [...]string{".", "/apps/chaosmonkey", "/etc", "/etc/chaosmonkey"}
+	configPaths = [...]string{".", "/apps/chaosbum", "/etc", "/etc/chaosbum"}
 )
 
 // Usage prints usage
 func Usage() {
 	usage := `
-Chaos Monkey
+Chaos Bum
 
 Usage:
-	chaosmonkey <command> ...
+	chaosbum <command> ...
 
 command: migrate | schedule | terminate | fetch-schedule | outage | config  | email | eligible | intest
 
 Install
 -------
-Installs chaosmonkey with all the setup required, e.g setting up the cron, appling database migration etc.
+Installs chaosbum with all the setup required, e.g setting up the cron, appling database migration etc.
 
 migrate
 -------
@@ -71,12 +71,12 @@ Applies database migration to the database defined in the configuration file.
 schedule [--max-apps=<N>] [--apps=foo,bar,baz] [--no-record-schedule]
 --------------------------------------------------------------------
 Generates a schedule of terminations for the day and installs the
-terminations as local cron jobs that call "chaosmonkey terminate ..."
+terminations as local cron jobs that call "chaosbum terminate ..."
 
 --apps=foo,bar,baz     Optionally specify an explicit list of apps to schedule.
                        This is primarily used for debugging.
 
---max-apps=<N>         Optionally specify the maximum number of apps that Chaos Monkey
+--max-apps=<N>         Optionally specify the maximum number of apps that Chaos Bum
 					   will schedule. This is primarily used for debugging.
 
 --no-record-schedule   Do not record the schedule with the database.
@@ -89,8 +89,8 @@ Terminates an instance from a given app and account.
 
 Optionally specify a region, stack, cluster.
 
-The --leashed flag forces chaosmonkey to run in leashed mode. When leashed,
-Chaos Monkey will check if an instance should be terminated, but will not
+The --leashed flag forces chaosbum to run in leashed mode. When leashed,
+Chaos Bum will check if an instance should be terminated, but will not
 actually terminate it.
 
 fetch-schedule
@@ -109,13 +109,13 @@ config [<app>]
 Query Spinnaker for the config for a specific app and dump it to
 standard out. This is only used for debugging.
 
-If no app is specified, dump the Monkey-level configuration options to standard out.
+If no app is specified, dump the Bum-level configuration options to standard out.
 
 Examples:
 
-	chaosmonkey config chaosguineapig
+	chaosbum config chaosguineapig
 
-	chaosmonkey config
+	chaosbum config
 
 eligible <app> <account> [--region=<region>] [--stack=<stack>] [--cluster=<cluster>]
 -------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ Look up an cloud account ID by name.
 
 Example:
 
-	chaosmonkey account test
+	chaosbum account test
 
 
 provider <name>
@@ -146,7 +146,7 @@ Look up the cloud provider by account name.
 
 Example:
 
-	chaosmonkey provider test
+	chaosbum provider test
 
 
 clusters <app> <account>
@@ -156,7 +156,7 @@ List the clusters for a given app and account
 
 Example:
 
-	chaosmonkey clusters chaosguineapig test
+	chaosbum clusters chaosguineapig test
 
 
 regions <cluster> <account>
@@ -166,7 +166,7 @@ List the regions for a given cluster and account
 
 Example:
 
-	chaosmonkey regions chaosguineapig test
+	chaosbum regions chaosguineapig test
 `
 	fmt.Printf(usage)
 }
@@ -176,7 +176,7 @@ func init() {
 	log.SetPrefix(fmt.Sprintf("[%5d] ", os.Getpid()))
 }
 
-// Execute is the main entry point for the chaosmonkey cli.
+// Execute is the main entry point for the chaosbum cli.
 func Execute() {
 	regionPtr := flag.String("region", "", "region of termination group")
 	stackPtr := flag.String("stack", "", "stack of termination group")
@@ -249,13 +249,13 @@ func Execute() {
 
 	switch cmd {
 	case "install":
-		executable := ChaosmonkeyExecutable{}
+		executable := ChaosbumExecutable{}
 		Install(cfg, executable, sql)
 	case "migrate":
 		Migrate(sql)
 	case "schedule":
-		log.Println("chaosmonkey schedule starting")
-		defer log.Println("chaosmonkey schedule done")
+		log.Println("chaosbum schedule starting")
+		defer log.Println("chaosbum schedule done")
 
 		var apps []string
 		if *appsPtr != "" {
@@ -304,7 +304,7 @@ func Execute() {
 
 		defer logOnPanic(errCounter) // Handler in case of panic
 		deps := deps.Deps{
-			MonkeyCfg:  cfg,
+			BumCfg:  cfg,
 			Checker:    sql,
 			ConfGetter: spin,
 			Cl:         clock.New(),
@@ -320,7 +320,7 @@ func Execute() {
 		Outage(outage)
 	case "config":
 		if len(flag.Args()) != 2 {
-			DumpMonkeyConfig(cfg)
+			DumpBumConfig(cfg)
 			return
 		}
 		app := flag.Arg(1)
@@ -404,7 +404,7 @@ func init() {
 }
 
 // logOnPanic increments an error metric and logs if a panic happens
-func logOnPanic(errCounter chaosmonkey.ErrorCounter) {
+func logOnPanic(errCounter chaosbum.ErrorCounter) {
 	if e := recover(); e != nil {
 		log.Printf("FATAL: panic: %s: %s", e, debug.Stack())
 		err := errCounter.Increment()
@@ -415,7 +415,7 @@ func logOnPanic(errCounter chaosmonkey.ErrorCounter) {
 }
 
 // return configuration info
-func getConfig() (*config.Monkey, error) {
+func getConfig() (*config.Bum, error) {
 	cfg, err := config.Load(configPaths[:])
 	if err != nil {
 		return nil, err

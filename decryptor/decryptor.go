@@ -15,15 +15,15 @@
 package decryptor
 
 import (
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deps"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deps"
 	"github.com/pkg/errors"
 )
 
 type nullDecryptor struct{}
 
-// Decrypt implements chaosmonkey.Decryptor.Decrypt
+// Decrypt implements chaosbum.Decryptor.Decrypt
 // This is a no-op implementation that simply returns the plaintext
 func (n nullDecryptor) Decrypt(ciphertext string) (string, error) {
 	return ciphertext, nil
@@ -33,7 +33,7 @@ func init() {
 	deps.GetDecryptor = getNullDecryptor
 }
 
-func getNullDecryptor(cfg *config.Monkey) (chaosmonkey.Decryptor, error) {
+func getNullDecryptor(cfg *config.Bum) (chaosbum.Decryptor, error) {
 	kind := cfg.Decryptor()
 	if kind != "" {
 		return nil, errors.Errorf("unsupported decryptor: %s", kind)

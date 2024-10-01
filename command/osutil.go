@@ -19,12 +19,12 @@ import (
 	"os"
 )
 
-// ChaosmonkeyExecutable is a representation of Chaosmonkey executable
-type ChaosmonkeyExecutable struct {
+// ChaosbumExecutable is a representation of Chaosbum executable
+type ChaosbumExecutable struct {
 }
 
 // ExecutablePath implements command.CurrentExecutable.ExecutablePath
-func (e ChaosmonkeyExecutable) ExecutablePath() (string, error) {
+func (e ChaosbumExecutable) ExecutablePath() (string, error) {
 	return osext.Executable()
 }
 

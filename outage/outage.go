@@ -16,9 +16,9 @@
 package outage
 
 import (
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deps"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deps"
 	"github.com/pkg/errors"
 )
 
@@ -35,7 +35,7 @@ func init() {
 }
 
 // GetOutage returns a do-nothing outage checker
-func GetOutage(cfg *config.Monkey) (chaosmonkey.Outage, error) {
+func GetOutage(cfg *config.Bum) (chaosbum.Outage, error) {
 	checker := cfg.OutageChecker()
 	if checker != "" {
 		return nil, errors.Errorf("unknown outage provider: %s", checker)

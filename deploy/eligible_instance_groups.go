@@ -18,15 +18,15 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/grp"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/grp"
 )
 
 // EligibleInstanceGroups returns a slice of InstanceGroups that represent
 // groups of instances that are eligible for termination.
 //
 // Note that this code does not check for violations of minimum time between
-// terminations. Chaos Monkey checks that precondition immediately before
+// terminations. Chaos Bum checks that precondition immediately before
 // termination, not when considering groups of eligible instances.
 //
 // The way instances are divided into group will depend on
@@ -37,8 +37,8 @@ import (
 // each
 //
 // Preconditions:
-//   - app is enabled for Chaos Monkey
-func (app *App) EligibleInstanceGroups(cfg chaosmonkey.AppConfig) []grp.InstanceGroup {
+//   - app is enabled for Chaos Bum
+func (app *App) EligibleInstanceGroups(cfg chaosbum.AppConfig) []grp.InstanceGroup {
 	if !cfg.Enabled {
 		log.Fatalf("app %s unexpectedly disabled", app.Name())
 	}
@@ -47,17 +47,17 @@ func (app *App) EligibleInstanceGroups(cfg chaosmonkey.AppConfig) []grp.Instance
 	indep := cfg.RegionsAreIndependent
 
 	switch {
-	case grouping == chaosmonkey.App && indep:
+	case grouping == chaosbum.App && indep:
 		return appIndep(app)
-	case grouping == chaosmonkey.App && !indep:
+	case grouping == chaosbum.App && !indep:
 		return appDep(app)
-	case grouping == chaosmonkey.Stack && indep:
+	case grouping == chaosbum.Stack && indep:
 		return stackIndep(app)
-	case grouping == chaosmonkey.Stack && !indep:
+	case grouping == chaosbum.Stack && !indep:
 		return stackDep(app)
-	case grouping == chaosmonkey.Cluster && indep:
+	case grouping == chaosbum.Cluster && indep:
 		return clusterIndep(app)
-	case grouping == chaosmonkey.Cluster && !indep:
+	case grouping == chaosbum.Cluster && !indep:
 		return clusterDep(app)
 	default:
 		panic(fmt.Sprintf("Unknown grouping: %d", grouping))

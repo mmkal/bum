@@ -18,13 +18,13 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/Netflix/chaosmonkey/v2"
+	"github.com/Netflix/chaosbum/v2"
 
 	"github.com/pkg/errors"
 )
 
-// Get implements chaosmonkey.Getter.Get
-func (s Spinnaker) Get(app string) (c *chaosmonkey.AppConfig, err error) {
+// Get implements chaosbum.Getter.Get
+func (s Spinnaker) Get(app string) (c *chaosbum.AppConfig, err error) {
 	// avoid expanding the response to avoid unneeded load
 	url := s.appURL(app) + "?expand=false"
 	resp, err := s.client.Get(url)

@@ -16,8 +16,8 @@ package command
 
 import (
 	"fmt"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/mysql"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/mysql"
 	"io/ioutil"
 	"log"
 	"os"
@@ -27,7 +27,7 @@ const (
 	scheduleCommand  = "schedule"
 	terminateCommand = "terminate"
 	scriptContent    = `#!/bin/bash
-%s %s "$@" >> %s/chaosmonkey-%s.log 2>&1
+%s %s "$@" >> %s/chaosbum-%s.log 2>&1
 `
 )
 
@@ -37,15 +37,15 @@ type CurrentExecutable interface {
 	ExecutablePath() (string, error)
 }
 
-// Install installs chaosmonkey and runs database migration
-func Install(cfg *config.Monkey, exec CurrentExecutable, db mysql.MySQL) {
+// Install installs chaosbum and runs database migration
+func Install(cfg *config.Bum, exec CurrentExecutable, db mysql.MySQL) {
 	InstallCron(cfg, exec)
 	Migrate(db)
 	log.Println("installation done!")
 }
 
-// InstallCron installs chaosmonkey schedule generation cron
-func InstallCron(cfg *config.Monkey, exec CurrentExecutable) {
+// InstallCron installs chaosbum schedule generation cron
+func InstallCron(cfg *config.Bum, exec CurrentExecutable) {
 	executablePath, err := exec.ExecutablePath()
 	if err != nil {
 		log.Fatalf("FATAL: %v", err)
@@ -60,10 +60,10 @@ func InstallCron(cfg *config.Monkey, exec CurrentExecutable) {
 		log.Fatalf("FATAL: %v", err)
 	}
 
-	log.Println("chaosmonkey cron is installed successfully")
+	log.Println("chaosbum cron is installed successfully")
 }
 
-func setupCron(cfg *config.Monkey, executablePath string) error {
+func setupCron(cfg *config.Bum, executablePath string) error {
 	err := EnsureFileAbsent(cfg.SchedulePath())
 	if err != nil {
 		return err
@@ -99,7 +99,7 @@ func setupCron(cfg *config.Monkey, executablePath string) error {
 	return err
 }
 
-func setupTerminationScript(cfg *config.Monkey, executablePath string) error {
+func setupTerminationScript(cfg *config.Bum, executablePath string) error {
 	err := EnsureFileAbsent(cfg.TermPath())
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func setupTerminationScript(cfg *config.Monkey, executablePath string) error {
 	return err
 }
 
-func generateScriptContent(cmdName string, cfg *config.Monkey, executablePath string) ([]byte, error) {
+func generateScriptContent(cmdName string, cfg *config.Bum, executablePath string) ([]byte, error) {
 	content := fmt.Sprintf(scriptContent, executablePath, cmdName, cfg.LogPath(), cmdName)
 	return []byte(content), nil
 }

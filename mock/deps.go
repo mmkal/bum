@@ -18,11 +18,11 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/clock"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/config/param"
-	"github.com/Netflix/chaosmonkey/v2/deps"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/clock"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/config/param"
+	"github.com/Netflix/chaosbum/v2/deps"
 )
 
 type (
@@ -31,12 +31,12 @@ type (
 		Error error
 	}
 
-	// Tracker implements chaosmonkey.Tracker
+	// Tracker implements chaosbum.Tracker
 	Tracker struct {
 		Error error
 	}
 
-	// ErrorCounter implements chaosmonkey.Publisher
+	// ErrorCounter implements chaosbum.Publisher
 	ErrorCounter struct{}
 
 	// Clock implements clock.Clock
@@ -44,24 +44,24 @@ type (
 		Time time.Time
 	}
 
-	// Env implements chaosmonkey.Env
+	// Env implements chaosbum.Env
 	Env struct {
 		IsInTest bool
 	}
 )
 
 // Check implements deps.Checker.Check
-func (c Checker) Check(term chaosmonkey.Termination, appCfg chaosmonkey.AppConfig, endHour int, loc *time.Location) error {
+func (c Checker) Check(term chaosbum.Termination, appCfg chaosbum.AppConfig, endHour int, loc *time.Location) error {
 	return c.Error
 
 }
 
-// Track implements chaosmonkey.Tracker.Track
-func (t Tracker) Track(trm chaosmonkey.Termination) error {
+// Track implements chaosbum.Tracker.Track
+func (t Tracker) Track(trm chaosbum.Termination) error {
 	return t.Error
 }
 
-// Increment implements chaosmonkey.ErrorCounter.Increment
+// Increment implements chaosbum.ErrorCounter.Increment
 func (e ErrorCounter) Increment() error {
 	return nil
 }
@@ -71,7 +71,7 @@ func (c Clock) Now() time.Time {
 	return c.Time
 }
 
-// InTest implements chaosmonkey.Env.InTest
+// InTest implements chaosbum.Env.InTest
 func (e Env) InTest() bool {
 	return e.IsInTest
 }
@@ -101,7 +101,7 @@ func Deps() deps.Deps {
 	cfg.Set(param.CronPath, f.Name())
 
 	return deps.Deps{
-		MonkeyCfg:  cfg,
+		BumCfg:  cfg,
 		Checker:    Checker{Error: nil},
 		ConfGetter: DefaultConfigGetter(),
 		Cl:         clock.New(),

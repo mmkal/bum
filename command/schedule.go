@@ -21,16 +21,16 @@ import (
 	"os"
 	"time"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deploy"
-	"github.com/Netflix/chaosmonkey/v2/schedstore"
-	"github.com/Netflix/chaosmonkey/v2/schedule"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deploy"
+	"github.com/Netflix/chaosbum/v2/schedstore"
+	"github.com/Netflix/chaosbum/v2/schedule"
 )
 
 // Schedule executes the "schedule" command. This defines the schedule
 // of terminations for the day and records them as cron jobs
-func Schedule(g chaosmonkey.AppConfigGetter, ss schedstore.SchedStore, cfg *config.Monkey, d deploy.Deployment, cons schedule.Constrainer, apps []string) {
+func Schedule(g chaosbum.AppConfigGetter, ss schedstore.SchedStore, cfg *config.Bum, d deploy.Deployment, cons schedule.Constrainer, apps []string) {
 
 	enabled, err := cfg.ScheduleEnabled()
 	if err != nil {
@@ -43,7 +43,7 @@ func Schedule(g chaosmonkey.AppConfigGetter, ss schedstore.SchedStore, cfg *conf
 
 	/*
 	 Note: We don't check for the enable flag during scheduling, only
-	 during terminations. That way, if chaos monkey is disabled during
+	 during terminations. That way, if chaos bum is disabled during
 	 scheduling time but later in the day becomes enabled, it still
 	 functions correctly.
 	*/
@@ -56,7 +56,7 @@ func Schedule(g chaosmonkey.AppConfigGetter, ss schedstore.SchedStore, cfg *conf
 }
 
 // do is the actual implementation for the Schedule function
-func do(d deploy.Deployment, g chaosmonkey.AppConfigGetter, ss schedstore.SchedStore, cfg *config.Monkey, cons schedule.Constrainer, apps []string) error {
+func do(d deploy.Deployment, g chaosbum.AppConfigGetter, ss schedstore.SchedStore, cfg *config.Bum, cons schedule.Constrainer, apps []string) error {
 
 	s := schedule.New()
 	err := s.Populate(d, g, cfg, apps)
@@ -75,9 +75,9 @@ func do(d deploy.Deployment, g chaosmonkey.AppConfigGetter, ss schedstore.SchedS
 	return nil
 }
 
-// deploySchedule publishes the schedule to chaosmonkey-api
+// deploySchedule publishes the schedule to chaosbum-api
 // and registers the schedule with the local cron
-func deploySchedule(s *schedule.Schedule, ss schedstore.SchedStore, cfg *config.Monkey) error {
+func deploySchedule(s *schedule.Schedule, ss schedstore.SchedStore, cfg *config.Bum) error {
 	loc, err := cfg.Location()
 	if err != nil {
 		return fmt.Errorf("deploySchedule: could not retrieve local timezone: %v", err)
@@ -98,7 +98,7 @@ func deploySchedule(s *schedule.Schedule, ss schedstore.SchedStore, cfg *config.
 // registerWithCron registers the schedule of terminations with cron on the local machine
 //
 // Creates or overwrites the file specified by config.Chaos.CronPath()
-func registerWithCron(s *schedule.Schedule, cfg *config.Monkey) error {
+func registerWithCron(s *schedule.Schedule, cfg *config.Bum) error {
 	crontab := s.Crontab(cfg.TermPath(), cfg.TermAccount())
 	var perms os.FileMode = 0644 // -rw-r--r--
 	log.Printf("Writing %s\n", cfg.CronPath())

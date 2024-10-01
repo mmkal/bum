@@ -3,7 +3,7 @@
 SHELL:=/bin/bash
 
 build: check
-	go build github.com/Netflix/chaosmonkey/cmd/chaosmonkey
+	go build github.com/Netflix/chaosbum/cmd/chaosbum
 
 check: fmt lint errcheck
 

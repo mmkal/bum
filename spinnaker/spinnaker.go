@@ -29,14 +29,14 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	D "github.com/Netflix/chaosmonkey/v2/deploy"
-	"github.com/Netflix/chaosmonkey/v2/deps"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/config"
+	D "github.com/Netflix/chaosbum/v2/deploy"
+	"github.com/Netflix/chaosbum/v2/deps"
 )
 
 // Spinnaker implements the deploy.Deployment interface by querying Spinnaker
-// and the chaosmonkey.Termination interface by terminating via Spinnaker API
+// and the chaosbum.Termination interface by terminating via Spinnaker API
 // calls
 type Spinnaker struct {
 	endpoint string
@@ -102,7 +102,7 @@ func getClientX509(x509Cert, x509Key string) (*http.Client, error) {
 }
 
 // NewFromConfig returns a Spinnaker based on config
-func NewFromConfig(cfg *config.Monkey) (Spinnaker, error) {
+func NewFromConfig(cfg *config.Bum) (Spinnaker, error) {
 	spinnakerEndpoint := cfg.SpinnakerEndpoint()
 	certPath := cfg.SpinnakerCertificate()
 	encryptedPassword := cfg.SpinnakerEncryptedPassword()
@@ -116,7 +116,7 @@ func NewFromConfig(cfg *config.Monkey) (Spinnaker, error) {
 
 	var password string
 	var err error
-	var decryptor chaosmonkey.Decryptor
+	var decryptor chaosbum.Decryptor
 
 	if encryptedPassword != "" {
 		decryptor, err = deps.GetDecryptor(cfg)

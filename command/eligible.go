@@ -18,15 +18,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/deploy"
-	"github.com/Netflix/chaosmonkey/v2/eligible"
-	"github.com/Netflix/chaosmonkey/v2/grp"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/deploy"
+	"github.com/Netflix/chaosbum/v2/eligible"
+	"github.com/Netflix/chaosbum/v2/grp"
 )
 
 // Eligible prints out a list of instance ids eligible for termination
 // It is intended only for testing
-func Eligible(g chaosmonkey.AppConfigGetter, d deploy.Deployment, app, account, region, stack, cluster string) {
+func Eligible(g chaosbum.AppConfigGetter, d deploy.Deployment, app, account, region, stack, cluster string) {
 	cfg, err := g.Get(app)
 	if err != nil {
 		fmt.Printf("Failed to retrieve config for app %s\n%+v", app, err)

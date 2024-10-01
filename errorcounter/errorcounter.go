@@ -15,9 +15,9 @@
 package errorcounter
 
 import (
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deps"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deps"
 	"github.com/pkg/errors"
 )
 
@@ -35,7 +35,7 @@ func init() {
 	deps.GetErrorCounter = getNullErrorCounter
 }
 
-func getNullErrorCounter(cfg *config.Monkey) (chaosmonkey.ErrorCounter, error) {
+func getNullErrorCounter(cfg *config.Bum) (chaosbum.ErrorCounter, error) {
 	kind := cfg.ErrorCounter()
 	if kind != "" {
 		return nil, errors.Errorf("unsupported error counter: %s", kind)

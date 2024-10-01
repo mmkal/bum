@@ -16,7 +16,7 @@
 // for testing
 package mock
 
-import D "github.com/Netflix/chaosmonkey/v2/deploy"
+import D "github.com/Netflix/chaosbum/v2/deploy"
 
 // AppFactory creates App objects used for testing
 type AppFactory struct {

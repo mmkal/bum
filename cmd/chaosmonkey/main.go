@@ -13,22 +13,22 @@
 // limitations under the License.
 
 /*
-Chaos Monkey randomly terminates instances.
+Chaos Bum randomly terminates instances.
 */
 package main
 
 import (
-	"github.com/Netflix/chaosmonkey/v2/command"
+	"github.com/Netflix/chaosbum/v2/command"
 
 	// These are anonymous imported so that the related Get* methods (e.g.,
 	// GetDecryptor) are picked up.
 
-	_ "github.com/Netflix/chaosmonkey/v2/constrainer"
-	_ "github.com/Netflix/chaosmonkey/v2/decryptor"
-	_ "github.com/Netflix/chaosmonkey/v2/env"
-	_ "github.com/Netflix/chaosmonkey/v2/errorcounter"
-	_ "github.com/Netflix/chaosmonkey/v2/outage"
-	_ "github.com/Netflix/chaosmonkey/v2/tracker"
+	_ "github.com/Netflix/chaosbum/v2/constrainer"
+	_ "github.com/Netflix/chaosbum/v2/decryptor"
+	_ "github.com/Netflix/chaosbum/v2/env"
+	_ "github.com/Netflix/chaosbum/v2/errorcounter"
+	_ "github.com/Netflix/chaosbum/v2/outage"
+	_ "github.com/Netflix/chaosbum/v2/tracker"
 )
 
 func main() {

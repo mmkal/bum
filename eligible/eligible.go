@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package eligible contains methods that determine which instances are eligible for Chaos Monkey termination
+// Package eligible contains methods that determine which instances are eligible for Chaos Bum termination
 package eligible
 
 import (
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/deploy"
-	"github.com/Netflix/chaosmonkey/v2/grp"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/deploy"
+	"github.com/Netflix/chaosbum/v2/grp"
 	"github.com/SmartThingsOSS/frigga-go"
 	"github.com/pkg/errors"
 	"strings"
@@ -84,7 +84,7 @@ func (i instance) CloudProvider() string {
 	return string(i.cloudProvider)
 }
 
-func isException(exs []chaosmonkey.Exception, account deploy.AccountName, names *frigga.Names, region deploy.RegionName) bool {
+func isException(exs []chaosbum.Exception, account deploy.AccountName, names *frigga.Names, region deploy.RegionName) bool {
 	for _, ex := range exs {
 		if ex.Matches(string(account), names.Stack, names.Detail, string(region)) {
 			return true
@@ -103,7 +103,7 @@ func isNeverEligible(cluster deploy.ClusterName) bool {
 	return false
 }
 
-func clusters(group grp.InstanceGroup, cloudProvider deploy.CloudProvider, exs []chaosmonkey.Exception, dep deploy.Deployment) ([]cluster, error) {
+func clusters(group grp.InstanceGroup, cloudProvider deploy.CloudProvider, exs []chaosbum.Exception, dep deploy.Deployment) ([]cluster, error) {
 	account := deploy.AccountName(group.Account())
 	clusterNames, err := dep.GetClusterNames(group.App(), account)
 	if err != nil {
@@ -183,7 +183,7 @@ func isWhitelist(err error) bool {
 }
 
 // Instances returns instances eligible for termination
-func Instances(group grp.InstanceGroup, exs []chaosmonkey.Exception, dep deploy.Deployment) ([]chaosmonkey.Instance, error) {
+func Instances(group grp.InstanceGroup, exs []chaosbum.Exception, dep deploy.Deployment) ([]chaosbum.Instance, error) {
 	cloudProvider, err := dep.CloudProvider(group.Account())
 	if err != nil {
 		return nil, errors.Wrap(err, "retrieve cloud provider failed")
@@ -194,7 +194,7 @@ func Instances(group grp.InstanceGroup, exs []chaosmonkey.Exception, dep deploy.
 		return nil, err
 	}
 
-	result := make([]chaosmonkey.Instance, 0)
+	result := make([]chaosbum.Instance, 0)
 
 	for _, cl := range cls {
 		instances, err := getInstances(cl, dep)
@@ -208,8 +208,8 @@ func Instances(group grp.InstanceGroup, exs []chaosmonkey.Exception, dep deploy.
 
 }
 
-func getInstances(cl cluster, dep deploy.Deployment) ([]chaosmonkey.Instance, error) {
-	result := make([]chaosmonkey.Instance, 0)
+func getInstances(cl cluster, dep deploy.Deployment) ([]chaosbum.Instance, error) {
+	result := make([]chaosbum.Instance, 0)
 
 	asgName, ids, err := dep.GetInstanceIDs(string(cl.appName), cl.accountName, string(cl.cloudProvider), cl.regionName, cl.clusterName)
 

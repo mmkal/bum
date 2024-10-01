@@ -18,12 +18,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Netflix/chaosmonkey/v2"
+	"github.com/Netflix/chaosbum/v2"
 	"github.com/davecgh/go-spew/spew"
 )
 
 // DumpConfig dumps the config for an app to stdout
-func DumpConfig(c chaosmonkey.AppConfigGetter, app string) {
+func DumpConfig(c chaosbum.AppConfigGetter, app string) {
 	cfg, err := c.Get(app)
 	if err != nil {
 		fmt.Printf("%+v", err)

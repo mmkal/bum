@@ -16,45 +16,45 @@
 package deps
 
 import (
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/clock"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deploy"
-	"github.com/Netflix/chaosmonkey/v2/schedule"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/clock"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deploy"
+	"github.com/Netflix/chaosbum/v2/schedule"
 )
 
 var (
 	// GetTrackers returns a list of trackers
 	// This variable must be set in the init() method of a module imported by
 	// the main module.
-	GetTrackers func(*config.Monkey) ([]chaosmonkey.Tracker, error)
+	GetTrackers func(*config.Bum) ([]chaosbum.Tracker, error)
 
 	// GetErrorCounter returns an error counter
-	GetErrorCounter func(*config.Monkey) (chaosmonkey.ErrorCounter, error)
+	GetErrorCounter func(*config.Bum) (chaosbum.ErrorCounter, error)
 
 	// GetDecryptor returns a decryptor
-	GetDecryptor func(*config.Monkey) (chaosmonkey.Decryptor, error)
+	GetDecryptor func(*config.Bum) (chaosbum.Decryptor, error)
 
 	// GetEnv returns info about the deployed environment
-	GetEnv func(*config.Monkey) (chaosmonkey.Env, error)
+	GetEnv func(*config.Bum) (chaosbum.Env, error)
 
 	// GetOutage returns an interface for checking if there is an outage
-	GetOutage func(*config.Monkey) (chaosmonkey.Outage, error)
+	GetOutage func(*config.Bum) (chaosbum.Outage, error)
 
 	// GetConstrainer returns an interface for constraining the schedule
-	GetConstrainer func(*config.Monkey) (schedule.Constrainer, error)
+	GetConstrainer func(*config.Bum) (schedule.Constrainer, error)
 )
 
 // Deps are a common set of external dependencies
 type Deps struct {
-	MonkeyCfg  *config.Monkey
-	Checker    chaosmonkey.Checker
-	ConfGetter chaosmonkey.AppConfigGetter
+	BumCfg  *config.Bum
+	Checker    chaosbum.Checker
+	ConfGetter chaosbum.AppConfigGetter
 	Cl         clock.Clock
 	Dep        deploy.Deployment
-	T          chaosmonkey.Terminator
-	Trackers   []chaosmonkey.Tracker
-	Ou         chaosmonkey.Outage
-	ErrCounter chaosmonkey.ErrorCounter
-	Env        chaosmonkey.Env
+	T          chaosbum.Terminator
+	Trackers   []chaosbum.Tracker
+	Ou         chaosbum.Outage
+	ErrCounter chaosbum.ErrorCounter
+	Env        chaosbum.Env
 }

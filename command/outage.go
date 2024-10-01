@@ -18,11 +18,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Netflix/chaosmonkey/v2"
+	"github.com/Netflix/chaosbum/v2"
 )
 
 // Outage prints out "true" if an ongoing outage, else "false"
-func Outage(ou chaosmonkey.Outage) {
+func Outage(ou chaosbum.Outage) {
 	down, err := ou.Outage()
 	if err != nil {
 		fmt.Printf("ERROR: %v", err)

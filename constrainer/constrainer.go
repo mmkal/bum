@@ -15,9 +15,9 @@
 package constrainer
 
 import (
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deps"
-	"github.com/Netflix/chaosmonkey/v2/schedule"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deps"
+	"github.com/Netflix/chaosbum/v2/schedule"
 )
 
 // NullConstrainer is a no-op constrainer
@@ -33,6 +33,6 @@ func (n NullConstrainer) Filter(s schedule.Schedule) schedule.Schedule {
 	return s
 }
 
-func getNullConstrainer(cfg *config.Monkey) (schedule.Constrainer, error) {
+func getNullConstrainer(cfg *config.Bum) (schedule.Constrainer, error) {
 	return NullConstrainer{}, nil
 }

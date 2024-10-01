@@ -17,11 +17,11 @@ package command
 import (
 	"fmt"
 
-	"github.com/Netflix/chaosmonkey/v2/config"
+	"github.com/Netflix/chaosbum/v2/config"
 )
 
-// DumpMonkeyConfig dumps the monkey-level config parameters to stdout
-func DumpMonkeyConfig(cfg *config.Monkey) {
+// DumpBumConfig dumps the bum-level config parameters to stdout
+func DumpBumConfig(cfg *config.Bum) {
 	var enabled, leashed, sched bool
 	var accounts []string
 	var err error

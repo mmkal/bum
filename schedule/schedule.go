@@ -24,16 +24,16 @@ import (
 	"sort"
 	"time"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deploy"
-	"github.com/Netflix/chaosmonkey/v2/grp"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deploy"
+	"github.com/Netflix/chaosbum/v2/grp"
 )
 
 // Populate populates the termination schedule with the random
 // terminations for a list of apps. If the specified list of apps is empty,
 // then it will
-func (s *Schedule) Populate(d deploy.Deployment, getter chaosmonkey.AppConfigGetter, chaosConfig *config.Monkey, apps []string) error {
+func (s *Schedule) Populate(d deploy.Deployment, getter chaosbum.AppConfigGetter, chaosConfig *config.Bum, apps []string) error {
 	c := make(chan *deploy.App)
 
 	// If the caller explicitly a set of apps, use those
@@ -78,7 +78,7 @@ func (s *Schedule) Entries() []Entry {
 }
 
 // doScheduleApp populates the termination schedule for one app
-func doScheduleApp(schedule *Schedule, app *deploy.App, cfg chaosmonkey.AppConfig, chaosConfig *config.Monkey) {
+func doScheduleApp(schedule *Schedule, app *deploy.App, cfg chaosbum.AppConfig, chaosConfig *config.Bum) {
 
 	if !cfg.Enabled {
 		log.Printf("app=%s disabled\n", app.Name())
@@ -226,7 +226,7 @@ func (e *Entry) Crontab(termPath, account string) string {
 }
 
 // terminateCommand returns the string for terminating an instance
-// given the path to the chaosmonkey termination executable and an instance to terminate
+// given the path to the chaosbum termination executable and an instance to terminate
 func terminateCommand(termPath string, group grp.InstanceGroup) string {
 	cmd := fmt.Sprintf("%s %s %s", termPath, group.App(), group.Account())
 	if cluster, ok := group.Cluster(); ok {

@@ -23,15 +23,15 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/cal"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/config/param"
-	"github.com/Netflix/chaosmonkey/v2/deps"
-	"github.com/Netflix/chaosmonkey/v2/grp"
-	"github.com/Netflix/chaosmonkey/v2/migration"
-	"github.com/Netflix/chaosmonkey/v2/schedstore"
-	"github.com/Netflix/chaosmonkey/v2/schedule"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/cal"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/config/param"
+	"github.com/Netflix/chaosbum/v2/deps"
+	"github.com/Netflix/chaosbum/v2/grp"
+	"github.com/Netflix/chaosbum/v2/migration"
+	"github.com/Netflix/chaosbum/v2/schedstore"
+	"github.com/Netflix/chaosbum/v2/schedule"
 	"github.com/rubenv/sql-migrate"
 	"log"
 )
@@ -56,12 +56,12 @@ func TxDeadlock(err error) bool {
 // ViolatesMinTime returns true if the error violates min time between
 // terminations
 func ViolatesMinTime(err error) bool {
-	_, ok := errors.Cause(err).(chaosmonkey.ErrViolatesMinTime)
+	_, ok := errors.Cause(err).(chaosbum.ErrViolatesMinTime)
 	return ok
 }
 
 // NewFromConfig creates a new MySQL taking config parameters from cfg
-func NewFromConfig(cfg *config.Monkey) (MySQL, error) {
+func NewFromConfig(cfg *config.Bum) (MySQL, error) {
 
 	if cfg.DatabaseHost() == "" {
 		return MySQL{}, errors.Errorf("%s not specified", param.DatabaseHost)
@@ -261,13 +261,13 @@ func dsn(host string, port int, user string, password string, dbname string) str
 
 // Check checks if a termination is permitted and, if so, records the
 // termination time on the server
-func (m MySQL) Check(term chaosmonkey.Termination, appCfg chaosmonkey.AppConfig, endHour int, loc *time.Location) error {
+func (m MySQL) Check(term chaosbum.Termination, appCfg chaosbum.AppConfig, endHour int, loc *time.Location) error {
 	return m.CheckWithDelay(term, appCfg, endHour, loc, 0)
 }
 
 // CheckWithDelay is the same as Check, but adds a delay between reading and
 // writing to the database (used for testing only)
-func (m MySQL) CheckWithDelay(term chaosmonkey.Termination, appCfg chaosmonkey.AppConfig, endHour int, loc *time.Location, delay time.Duration) error {
+func (m MySQL) CheckWithDelay(term chaosbum.Termination, appCfg chaosbum.AppConfig, endHour int, loc *time.Location, delay time.Duration) error {
 	tx, err := m.db.Begin()
 	if err != nil {
 		return errors.Wrap(err, "failed to begin transaction")
@@ -300,7 +300,7 @@ func (m MySQL) CheckWithDelay(term chaosmonkey.Termination, appCfg chaosmonkey.A
 // violate the min time between kills value. If this termination is too close
 // to the most recent one, this will return an error.
 // If this termination would violate the min time, returns an ErrViolatesMinTime
-func respectsMinTimeBetweenKills(tx *sql.Tx, now time.Time, term chaosmonkey.Termination, appCfg chaosmonkey.AppConfig, endHour int, loc *time.Location) (err error) {
+func respectsMinTimeBetweenKills(tx *sql.Tx, now time.Time, term chaosbum.Termination, appCfg chaosbum.AppConfig, endHour int, loc *time.Location) (err error) {
 	app := term.Instance.AppName()
 	account := term.Instance.AccountName()
 	threshold, err := noKillsSince(appCfg.MinTimeBetweenKillsInWorkDays, now, endHour, loc)
@@ -314,12 +314,12 @@ func respectsMinTimeBetweenKills(tx *sql.Tx, now time.Time, term chaosmonkey.Ter
 	args := []interface{}{app, account, threshold.In(time.UTC)}
 
 	switch appCfg.Grouping {
-	case chaosmonkey.App:
+	case chaosbum.App:
 		// nothing to do
-	case chaosmonkey.Stack:
+	case chaosbum.Stack:
 		query += " AND stack = ?"
 		args = append(args, term.Instance.StackName())
-	case chaosmonkey.Cluster:
+	case chaosbum.Cluster:
 		query += " AND cluster = ?"
 		args = append(args, term.Instance.ClusterName())
 	default:
@@ -359,7 +359,7 @@ func respectsMinTimeBetweenKills(tx *sql.Tx, now time.Time, term chaosmonkey.Ter
 		var instanceID string
 		var killedAt time.Time
 		err = rows.Scan(&instanceID, &killedAt)
-		return chaosmonkey.ErrViolatesMinTime{InstanceID: instanceID, KilledAt: killedAt, Loc: loc}
+		return chaosbum.ErrViolatesMinTime{InstanceID: instanceID, KilledAt: killedAt, Loc: loc}
 	}
 
 	return nil
@@ -427,7 +427,7 @@ func noKillsSince(days int, now time.Time, endHour int, loc *time.Location) (tim
 	return helper(days, now.In(loc)), nil
 }
 
-func recordTermination(tx *sql.Tx, term chaosmonkey.Termination, loc *time.Location) (err error) {
+func recordTermination(tx *sql.Tx, term chaosbum.Termination, loc *time.Location) (err error) {
 
 	i := term.Instance
 

@@ -18,7 +18,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Netflix/chaosmonkey/v2/schedule"
+	"github.com/Netflix/chaosbum/v2/schedule"
 )
 
 // ErrAlreadyExists is returned when calling Publish if a schedule already

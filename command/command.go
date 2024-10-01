@@ -13,5 +13,5 @@
 // limitations under the License.
 
 // Package command contains functions that can be invoked via command-line
-// e.g. "chaosmonkey schedule" invokes command.Schedule
+// e.g. "chaosbum schedule" invokes command.Schedule
 package command

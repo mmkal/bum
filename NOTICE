@@ -1,7 +1,7 @@
-Chaos Monkey randomly terminates instances.
+Chaos Bum randomly terminates instances.
 Copyright (C) 2016 Netflix, Inc.
 
-Chaos Monkey makes use of several third-party OSS libraries that are included in
+Chaos Bum makes use of several third-party OSS libraries that are included in
 the vendor directory.
 
 

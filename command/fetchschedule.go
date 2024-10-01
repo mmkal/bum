@@ -18,16 +18,16 @@ import (
 	"log"
 	"time"
 
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/schedstore"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/schedstore"
 )
 
 // FetchSchedule executes the "fetch-schedule" command. This checks if there
 // is an existing schedule for today that was previously registered
-// in chaosmonkey-api. If so, it downloads the schedule from chaosmonkey-api
+// in chaosbum-api. If so, it downloads the schedule from chaosbum-api
 // and installs it locally.
-func FetchSchedule(s schedstore.SchedStore, cfg *config.Monkey) {
-	log.Println("chaosmonkey fetch-schedule starting")
+func FetchSchedule(s schedstore.SchedStore, cfg *config.Bum) {
+	log.Println("chaosbum fetch-schedule starting")
 	sched, err := s.Retrieve(today(cfg))
 	if err != nil {
 		log.Fatalf("FATAL: could not fetch schedule: %v", err)
@@ -43,11 +43,11 @@ func FetchSchedule(s schedstore.SchedStore, cfg *config.Monkey) {
 		log.Fatalf("FATAL: could not register with cron: %v", err)
 	}
 
-	defer log.Println("chaosmonkey fetch-schedule done")
+	defer log.Println("chaosbum fetch-schedule done")
 }
 
 // today returns a date in local time
-func today(cfg *config.Monkey) time.Time {
+func today(cfg *config.Bum) time.Time {
 	loc, err := cfg.Location()
 	if err != nil {
 		log.Fatalf("FATAL: Could not get local timezone: %v", err)

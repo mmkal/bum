@@ -17,7 +17,7 @@ package mock
 import (
 	"github.com/pkg/errors"
 
-	D "github.com/Netflix/chaosmonkey/v2/deploy"
+	D "github.com/Netflix/chaosbum/v2/deploy"
 )
 
 const cloudProvider = "aws"

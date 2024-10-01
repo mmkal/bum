@@ -14,17 +14,17 @@
 
 package mock
 
-import "github.com/Netflix/chaosmonkey/v2"
+import "github.com/Netflix/chaosbum/v2"
 
 // Terminator implements term.terminator
 type Terminator struct {
-	Instance chaosmonkey.Instance
+	Instance chaosbum.Instance
 	Ncalls   int
 	Error    error
 }
 
 // Execute pretends to terminate an instance
-func (t *Terminator) Execute(trm chaosmonkey.Termination) error {
+func (t *Terminator) Execute(trm chaosbum.Termination) error {
 	// Records the most recent killed instance for assertion checking
 	t.Instance = trm.Instance
 

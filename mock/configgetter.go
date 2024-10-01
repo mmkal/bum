@@ -14,33 +14,33 @@
 
 package mock
 
-import "github.com/Netflix/chaosmonkey/v2"
+import "github.com/Netflix/chaosbum/v2"
 
-// ConfigGetter implements chaosmonkey.Getter
+// ConfigGetter implements chaosbum.Getter
 type ConfigGetter struct {
-	Config chaosmonkey.AppConfig
+	Config chaosbum.AppConfig
 }
 
 // NewConfigGetter returns a mock config getter that always returns the specified config
-func NewConfigGetter(config chaosmonkey.AppConfig) ConfigGetter {
+func NewConfigGetter(config chaosbum.AppConfig) ConfigGetter {
 	return ConfigGetter{Config: config}
 }
 
 // DefaultConfigGetter returns a mock config getter that always returns the same config
 func DefaultConfigGetter() ConfigGetter {
 	return ConfigGetter{
-		Config: chaosmonkey.AppConfig{
+		Config: chaosbum.AppConfig{
 			Enabled:                        true,
 			RegionsAreIndependent:          true,
 			MeanTimeBetweenKillsInWorkDays: 5,
 			MinTimeBetweenKillsInWorkDays:  1,
-			Grouping:                       chaosmonkey.Cluster,
+			Grouping:                       chaosbum.Cluster,
 			Exceptions:                     nil,
 		},
 	}
 }
 
-// Get implements chaosmonkey.Getter.Get
-func (c ConfigGetter) Get(app string) (*chaosmonkey.AppConfig, error) {
+// Get implements chaosbum.Getter.Get
+func (c ConfigGetter) Get(app string) (*chaosbum.AppConfig, error) {
 	return &c.Config, nil
 }

@@ -24,7 +24,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/Netflix/chaosmonkey/v2"
+	"github.com/Netflix/chaosbum/v2"
 )
 
 const terminateType string = "terminateInstances"
@@ -54,7 +54,7 @@ type (
 )
 
 // NewFakeTerm returns a fake Terminator that prints out what API calls it would make against Spinnaker
-func NewFakeTerm() chaosmonkey.Terminator {
+func NewFakeTerm() chaosbum.Terminator {
 	return fakeTerminator{}
 }
 
@@ -64,12 +64,12 @@ func (s Spinnaker) tasksURL(appName string) string {
 }
 
 // Kill implements term.Terminator.Kill
-func (t fakeTerminator) Execute(trm chaosmonkey.Termination) error {
+func (t fakeTerminator) Execute(trm chaosbum.Termination) error {
 	return nil
 }
 
 // Execute implements term.Terminator.Execute
-func (s Spinnaker) Execute(trm chaosmonkey.Termination) (err error) {
+func (s Spinnaker) Execute(trm chaosbum.Termination) (err error) {
 	ins := trm.Instance
 	url := s.tasksURL(ins.AppName())
 
@@ -105,12 +105,12 @@ func (s Spinnaker) Execute(trm chaosmonkey.Termination) (err error) {
 // killJsonPayload generates the JSON request body for terminating an instance
 // otherID is an optional second instance ID, as some backends may have a second
 // identifer.
-func killJSONPayload(ins chaosmonkey.Instance, otherID string, spinnakerUser string) []byte {
+func killJSONPayload(ins chaosbum.Instance, otherID string, spinnakerUser string) []byte {
 	var desc string
 	if otherID != "" {
-		desc = fmt.Sprintf("Chaos Monkey terminate instance: %s %s (%s, %s, %s)", ins.ID(), otherID, ins.AccountName(), ins.RegionName(), ins.ASGName())
+		desc = fmt.Sprintf("Chaos Bum terminate instance: %s %s (%s, %s, %s)", ins.ID(), otherID, ins.AccountName(), ins.RegionName(), ins.ASGName())
 	} else {
-		desc = fmt.Sprintf("Chaos Monkey terminate instance: %s (%s, %s, %s)", ins.ID(), ins.AccountName(), ins.RegionName(), ins.ASGName())
+		desc = fmt.Sprintf("Chaos Bum terminate instance: %s (%s, %s, %s)", ins.ID(), ins.AccountName(), ins.RegionName(), ins.ASGName())
 	}
 
 	p := killPayload{
@@ -140,7 +140,7 @@ func killJSONPayload(ins chaosmonkey.Instance, otherID string, spinnakerUser str
 // OtherID returns the alternate instance id of an instance, if it exists
 // If there is no alternate instance id, it returns an empty string
 // This is used by Titus, where we also report the uuid
-func (s Spinnaker) OtherID(ins chaosmonkey.Instance) (otherID string, err error) {
+func (s Spinnaker) OtherID(ins chaosbum.Instance) (otherID string, err error) {
 	url := s.instanceURL(ins.AccountName(), ins.RegionName(), ins.ID())
 	resp, err := s.client.Get(url)
 	if err != nil {

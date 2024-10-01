@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package env contains a no-op implementation of chaosmonkey.env
+// Package env contains a no-op implementation of chaosbum.env
 // where InTest() always returns false
 package env
 
 import (
-	"github.com/Netflix/chaosmonkey/v2"
-	"github.com/Netflix/chaosmonkey/v2/config"
-	"github.com/Netflix/chaosmonkey/v2/deps"
+	"github.com/Netflix/chaosbum/v2"
+	"github.com/Netflix/chaosbum/v2/config"
+	"github.com/Netflix/chaosbum/v2/deps"
 )
 
 // notTestEnv is an environment that does not report as a test env
 type notTestEnv struct{}
 
-// InTest implements chaosmonkey.Env.InTest
+// InTest implements chaosbum.Env.InTest
 func (n notTestEnv) InTest() bool {
 	return false
 }
@@ -34,6 +34,6 @@ func init() {
 	deps.GetEnv = getNotTestEnv
 }
 
-func getNotTestEnv(cfg *config.Monkey) (chaosmonkey.Env, error) {
+func getNotTestEnv(cfg *config.Bum) (chaosbum.Env, error) {
 	return notTestEnv{}, nil
 }

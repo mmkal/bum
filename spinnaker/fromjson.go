@@ -18,19 +18,19 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Netflix/chaosmonkey/v2"
+	"github.com/Netflix/chaosbum/v2"
 
 	"github.com/pkg/errors"
 )
 
 // FromJSON takes a Spinnaker JSON representation of an app
-// and returns a Chaos Monkey config
+// and returns a Chaos Bum config
 // Example:
 //
 //	{
 //	    "name": "abc",
 //	    "attributes": {
-//	      "chaosMonkey": {
+//	      "chaosBum": {
 //	      "enabled": true,
 //	        "meanTimeBetweenKillsInWorkDays": 5,
 //	        "minTimeBetweenKillsInWorkDays": 1,
@@ -59,7 +59,7 @@ import (
 //	{
 //	    "name": "abc",
 //	    "attributes": {
-//	      "chaosMonkey": {
+//	      "chaosBum": {
 //	      "enabled": false
 //	      }
 //	    }
@@ -90,7 +90,7 @@ import (
 //	 	  	}
 //	 	  ]
 //		  }
-func fromJSON(js []byte) (*chaosmonkey.AppConfig, error) {
+func fromJSON(js []byte) (*chaosbum.AppConfig, error) {
 	parsed := new(parsedJSON)
 	err := json.Unmarshal(js, parsed)
 
@@ -102,39 +102,39 @@ func fromJSON(js []byte) (*chaosmonkey.AppConfig, error) {
 		return nil, errors.New("'attributes' field missing")
 	}
 
-	if parsed.Attributes.ChaosMonkey == nil {
-		return nil, errors.New("'attributes.chaosMonkey' field missing")
+	if parsed.Attributes.ChaosBum == nil {
+		return nil, errors.New("'attributes.chaosBum' field missing")
 	}
 
-	cm := parsed.Attributes.ChaosMonkey
+	cm := parsed.Attributes.ChaosBum
 
 	if cm.Enabled == nil {
-		return nil, errors.New("'attributes.chaosMonkey.enabled' field missing")
+		return nil, errors.New("'attributes.chaosBum.enabled' field missing")
 	}
 
 	// Check if mean time between kills is missing.
 	// If not enabled, it's ok if it's missing
 	if *cm.Enabled && cm.MeanTimeBetweenKillsInWorkDays == nil {
-		return nil, errors.New("attributes.chaosMonkey.meanTimeBetweenKillsInWorkDays missing")
+		return nil, errors.New("attributes.chaosBum.meanTimeBetweenKillsInWorkDays missing")
 	}
 
 	if *cm.Enabled && cm.MinTimeBetweenKillsInWorkDays == nil {
-		return nil, errors.New("attributes.chaosMonkey.minTimeBetweenKillsInWorkDays missing")
+		return nil, errors.New("attributes.chaosBum.minTimeBetweenKillsInWorkDays missing")
 	}
 
 	if *cm.Enabled && (*cm.MeanTimeBetweenKillsInWorkDays <= 0) {
-		return nil, fmt.Errorf("invalid attributes.chaosMonkey.meanTimeBetweenKillsInWorkDays: %d", cm.MeanTimeBetweenKillsInWorkDays)
+		return nil, fmt.Errorf("invalid attributes.chaosBum.meanTimeBetweenKillsInWorkDays: %d", cm.MeanTimeBetweenKillsInWorkDays)
 	}
 
-	grouping := chaosmonkey.Cluster
+	grouping := chaosbum.Cluster
 
 	switch cm.Grouping {
 	case "app":
-		grouping = chaosmonkey.App
+		grouping = chaosbum.App
 	case "stack":
-		grouping = chaosmonkey.Stack
+		grouping = chaosbum.Stack
 	case "cluster":
-		grouping = chaosmonkey.Cluster
+		grouping = chaosbum.Cluster
 	default:
 		// If not enabled, the user may not have specified a grouping at all,
 		// in which case we stick with the default
@@ -165,7 +165,7 @@ func fromJSON(js []byte) (*chaosmonkey.AppConfig, error) {
 		}
 	}
 
-	cfg := chaosmonkey.AppConfig{
+	cfg := chaosbum.AppConfig{
 		Enabled:                        *cm.Enabled,
 		RegionsAreIndependent:          cm.RegionsAreIndependent,
 		Grouping:                       grouping,
@@ -185,15 +185,15 @@ type parsedJSON struct {
 }
 
 type parsedAttr struct {
-	ChaosMonkey *parsedChaosMonkey `json:"chaosmonkey"`
+	ChaosBum *parsedChaosBum `json:"chaosbum"`
 }
 
-type parsedChaosMonkey struct {
+type parsedChaosBum struct {
 	Enabled                        *bool                    `json:"enabled"`
 	Grouping                       string                   `json:"grouping"`
 	MeanTimeBetweenKillsInWorkDays *int                     `json:"meanTimeBetweenKillsInWorkDays"`
 	MinTimeBetweenKillsInWorkDays  *int                     `json:"minTimeBetweenKillsInWorkDays"`
 	RegionsAreIndependent          bool                     `json:"regionsAreIndependent"`
-	Exceptions                     []chaosmonkey.Exception  `json:"exceptions"`
-	Whitelist                      *[]chaosmonkey.Exception `json:"whitelist"`
+	Exceptions                     []chaosbum.Exception  `json:"exceptions"`
+	Whitelist                      *[]chaosbum.Exception `json:"whitelist"`
 }

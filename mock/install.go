@@ -14,7 +14,7 @@
 
 package mock
 
-// Executable is a mock representation of Chaosmonkey executable
+// Executable is a mock representation of Chaosbum executable
 type Executable struct {
 	// Path returns the path to executable
 	Path string

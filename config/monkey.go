@@ -28,11 +28,11 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/Netflix/chaosmonkey/v2/config/param"
+	"github.com/Netflix/chaosbum/v2/config/param"
 )
 
-// Monkey is is a config implementation backed by viper
-type Monkey struct {
+// Bum is is a config implementation backed by viper
+type Bum struct {
 	remote bool // if true, there's a remote provider
 	v      *viper.Viper
 }
@@ -44,7 +44,7 @@ const (
 	cronBeforeStartHour int = 2
 )
 
-func (m *Monkey) setDefaults() {
+func (m *Bum) setDefaults() {
 	m.v.SetDefault(param.Enabled, false)
 	m.v.SetDefault(param.Leashed, true)
 	m.v.SetDefault(param.ScheduleEnabled, false)
@@ -52,8 +52,8 @@ func (m *Monkey) setDefaults() {
 	m.v.SetDefault(param.StartHour, 9)
 	m.v.SetDefault(param.EndHour, 15)
 	m.v.SetDefault(param.TimeZone, "America/Los_Angeles")
-	m.v.SetDefault(param.CronPath, "/etc/cron.d/chaosmonkey-daily-terminations")
-	m.v.SetDefault(param.TermPath, "/apps/chaosmonkey/chaosmonkey-terminate.sh")
+	m.v.SetDefault(param.CronPath, "/etc/cron.d/chaosbum-daily-terminations")
+	m.v.SetDefault(param.TermPath, "/apps/chaosbum/chaosbum-terminate.sh")
 	m.v.SetDefault(param.TermAccount, "root")
 	m.v.SetDefault(param.MaxApps, math.MaxInt32)
 	m.v.SetDefault(param.Trackers, []string{})
@@ -73,23 +73,23 @@ func (m *Monkey) setDefaults() {
 	m.v.SetDefault(param.DynamicEndpoint, "")
 	m.v.SetDefault(param.DynamicPath, "")
 
-	m.v.SetDefault(param.ScheduleCronPath, "/etc/cron.d/chaosmonkey-schedule")
-	m.v.SetDefault(param.SchedulePath, "/apps/chaosmonkey/chaosmonkey-schedule.sh")
+	m.v.SetDefault(param.ScheduleCronPath, "/etc/cron.d/chaosbum-schedule")
+	m.v.SetDefault(param.SchedulePath, "/apps/chaosbum/chaosbum-schedule.sh")
 	m.v.SetDefault(param.LogPath, "/var/log")
 }
 
-func (m *Monkey) setupEnvVarReader() {
+func (m *Bum) setupEnvVarReader() {
 	// read from environment variables
 	m.v.AutomaticEnv()
 
 	// Replace "." with "_" when reading environment variables
-	// e.g.: chaosmonkey.enabled -> CHAOSMONKEY_ENABLED
+	// e.g.: chaosbum.enabled -> CHAOSMONKEY_ENABLED
 	m.v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 }
 
-// Load returns a Monkey config that loads config from a file
-func Load(configPaths []string) (*Monkey, error) {
-	m := &Monkey{v: viper.New()}
+// Load returns a Bum config that loads config from a file
+func Load(configPaths []string) (*Bum, error) {
+	m := &Bum{v: viper.New()}
 
 	m.setDefaults()
 	m.setupEnvVarReader()
@@ -99,7 +99,7 @@ func Load(configPaths []string) (*Monkey, error) {
 	}
 
 	m.v.SetConfigType("toml")
-	m.v.SetConfigName("chaosmonkey")
+	m.v.SetConfigName("chaosbum")
 
 	err := m.v.ReadInConfig()
 	// It's ok if the config file doesn't exist, but we want to catch any
@@ -119,19 +119,19 @@ func Load(configPaths []string) (*Monkey, error) {
 	return m, nil
 }
 
-// Defaults returns a Monkey config that just has the default values set
+// Defaults returns a Bum config that just has the default values set
 // it will not load local files or remote ones
-func Defaults() *Monkey {
-	v := &Monkey{v: viper.New()}
+func Defaults() *Bum {
+	v := &Bum{v: viper.New()}
 	v.setDefaults()
 	return v
 }
 
-// NewFromReader returns a Monkey config which parses the initial config
+// NewFromReader returns a Bum config which parses the initial config
 // from a reader. It may load remote if configured to
 // Config file must be in toml format
-func NewFromReader(in io.Reader) (*Monkey, error) {
-	m := &Monkey{v: viper.New()}
+func NewFromReader(in io.Reader) (*Bum, error) {
+	m := &Bum{v: viper.New()}
 	m.setDefaults()
 	m.v.SetConfigType("toml")
 	err := m.v.ReadConfig(in)
@@ -150,7 +150,7 @@ func NewFromReader(in io.Reader) (*Monkey, error) {
 
 // configureRemote configures viper for a remote provider if the user has
 // specified one
-func (m *Monkey) configureRemote() error {
+func (m *Bum) configureRemote() error {
 	provider := m.v.GetString(param.DynamicProvider)
 	endpoint := m.v.GetString(param.DynamicEndpoint)
 	path := m.v.GetString(param.DynamicPath)
@@ -170,7 +170,7 @@ func (m *Monkey) configureRemote() error {
 // SetRemoteProvider sets remote configuration parameters.
 // These will typically be set by parsing the config files. This method
 // exists to facilitate testing
-func (m *Monkey) SetRemoteProvider(provider string, endpoint string, path string) error {
+func (m *Bum) SetRemoteProvider(provider string, endpoint string, path string) error {
 	m.v.Set(param.DynamicProvider, provider)
 	m.v.Set(param.DynamicEndpoint, endpoint)
 	m.v.Set(param.DynamicPath, path)
@@ -179,38 +179,38 @@ func (m *Monkey) SetRemoteProvider(provider string, endpoint string, path string
 }
 
 // Set overrides the config value. Used for testing
-func (m *Monkey) Set(key string, value interface{}) {
+func (m *Bum) Set(key string, value interface{}) {
 	m.v.Set(key, value)
 }
 
 // readRemoteConfig retrieves config parameters from a remote source
 // If no remote source has been configured, this is a no-op
-func (m *Monkey) readRemoteConfig() error {
+func (m *Bum) readRemoteConfig() error {
 	if !m.remote {
 		return nil
 	}
 	return m.v.ReadRemoteConfig()
 }
 
-// Enabled returns true if Chaos Monkey is enabled
-func (m *Monkey) Enabled() (bool, error) {
+// Enabled returns true if Chaos Bum is enabled
+func (m *Bum) Enabled() (bool, error) {
 	return m.getDynamicBool(param.Enabled)
 }
 
-// Leashed returns true if Chaos Monkey is leashed
-// In leashed mode, Chaos Monkey records terminations but does not actually
+// Leashed returns true if Chaos Bum is leashed
+// In leashed mode, Chaos Bum records terminations but does not actually
 // terminate
-func (m *Monkey) Leashed() (bool, error) {
+func (m *Bum) Leashed() (bool, error) {
 	return m.getDynamicBool(param.Leashed)
 }
 
-// ScheduleEnabled returns true if Chaos Monkey termination scheduling is enabled
-// if false, Chaos Monkey will not generate a termination schedule
-func (m *Monkey) ScheduleEnabled() (bool, error) {
+// ScheduleEnabled returns true if Chaos Bum termination scheduling is enabled
+// if false, Chaos Bum will not generate a termination schedule
+func (m *Bum) ScheduleEnabled() (bool, error) {
 	return m.getDynamicBool(param.ScheduleEnabled)
 }
 
-func (m *Monkey) getDynamicBool(param string) (bool, error) {
+func (m *Bum) getDynamicBool(param string) (bool, error) {
 	err := m.readRemoteConfig()
 	if err != nil {
 		return false, err
@@ -219,8 +219,8 @@ func (m *Monkey) getDynamicBool(param string) (bool, error) {
 	return m.v.GetBool(param), nil
 }
 
-// AccountEnabled returns true if Chaos Monkey is enabled for that account
-func (m *Monkey) AccountEnabled(account string) (bool, error) {
+// AccountEnabled returns true if Chaos Bum is enabled for that account
+func (m *Bum) AccountEnabled(account string) (bool, error) {
 	accounts, err := m.Accounts()
 	if err != nil {
 		return false, err
@@ -235,8 +235,8 @@ func (m *Monkey) AccountEnabled(account string) (bool, error) {
 	return false, nil
 }
 
-// Accounts return a list of accounts where Choas Monkey is enabled
-func (m *Monkey) Accounts() ([]string, error) {
+// Accounts return a list of accounts where Choas Bum is enabled
+func (m *Bum) Accounts() ([]string, error) {
 	err := m.readRemoteConfig()
 	if err != nil {
 		return nil, err
@@ -259,61 +259,61 @@ func toStrings(values []interface{}) ([]string, error) {
 }
 
 // StartHour (o'clock) is when Chaos
-// Monkey starts terminating this value is in [0,23] This is time-zone
+// Bum starts terminating this value is in [0,23] This is time-zone
 // dependent, see the Location method
-func (m *Monkey) StartHour() int { return m.v.GetInt(param.StartHour) }
+func (m *Bum) StartHour() int { return m.v.GetInt(param.StartHour) }
 
-// EndHour (o'clock) is the time after which Chaos Monkey will
+// EndHour (o'clock) is the time after which Chaos Bum will
 // not terminate instances.
 // this value is in [0,23]
 // This is time-zone dependent, see the Location method
-func (m *Monkey) EndHour() int {
+func (m *Bum) EndHour() int {
 	return m.v.GetInt(param.EndHour)
 }
 
 // Location returns the time zone of StartHour and EndHour.
 // May return an error if time.LoadLocation fails
-func (m *Monkey) Location() (*time.Location, error) {
+func (m *Bum) Location() (*time.Location, error) {
 	return time.LoadLocation(m.v.GetString(param.TimeZone))
 }
 
-// CronPath returns the path to where Chaos Monkey
+// CronPath returns the path to where Chaos Bum
 // puts the cron job file with daily terminations
-func (m *Monkey) CronPath() string {
+func (m *Bum) CronPath() string {
 	return m.v.GetString(param.CronPath)
 }
 
 // TermPath returns the path to the executable that
-// wraps the chaos monkey binary for terminating instances
-func (m *Monkey) TermPath() string {
+// wraps the chaos bum binary for terminating instances
+func (m *Bum) TermPath() string {
 	return m.v.GetString(param.TermPath)
 }
 
 // TermAccount returns the account that cron will use
 // to execute the termination command
-func (m *Monkey) TermAccount() string {
+func (m *Bum) TermAccount() string {
 	return m.v.GetString(param.TermAccount)
 }
 
 // MaxApps returns the maximum number of apps to
 // examine for termination
-func (m *Monkey) MaxApps() int {
+func (m *Bum) MaxApps() int {
 	return m.v.GetInt(param.MaxApps)
 }
 
 // Trackers returns the names of the backend implementation for
 // termination trackers. Used for things like logging and metrics collection
-func (m *Monkey) Trackers() ([]string, error) {
+func (m *Bum) Trackers() ([]string, error) {
 	return m.getStringSlice(param.Trackers)
 }
 
 // ErrorCounter returns the names of the backend implementions for
 // error counters. Intended for monitoring/alerting.
-func (m *Monkey) ErrorCounter() string {
+func (m *Bum) ErrorCounter() string {
 	return m.v.GetString(param.ErrorCounter)
 }
 
-func (m *Monkey) getStringSlice(key string) ([]string, error) {
+func (m *Bum) getStringSlice(key string) ([]string, error) {
 	// This could be encoded natively as a list of strings, or as a string that
 	// represents a list of strings, so we need to handle both cases
 	t := m.v.Get(key)
@@ -337,79 +337,79 @@ func (m *Monkey) getStringSlice(key string) ([]string, error) {
 }
 
 // SpinnakerEndpoint returns the spinnaker endpoint
-func (m *Monkey) SpinnakerEndpoint() string {
+func (m *Bum) SpinnakerEndpoint() string {
 	return m.v.GetString(param.SpinnakerEndpoint)
 }
 
 // SpinnakerCertificate retunrs a path to a .p12 file that contains a TLS cert
 // for authenticating against Spinnaker
-func (m *Monkey) SpinnakerCertificate() string {
+func (m *Bum) SpinnakerCertificate() string {
 	return m.v.GetString(param.SpinnakerCertificate)
 }
 
 // SpinnakerEncryptedPassword returns an password that
 // is used to decrypt the Spinnaker certificate. The encryption scheme
 // is defined by the Decryptor parameter
-func (m *Monkey) SpinnakerEncryptedPassword() string {
+func (m *Bum) SpinnakerEncryptedPassword() string {
 	return m.v.GetString(param.SpinnakerEncryptedPassword)
 }
 
 // SpinnakerUser is sent in the "user" field in the terminateInstances task sent
 // to Spinnaker when Spinnaker terminates an instance
-func (m *Monkey) SpinnakerUser() string {
+func (m *Bum) SpinnakerUser() string {
 	return m.v.GetString(param.SpinnakerUser)
 }
 
 // SpinnakerX509Cert retunrs a path to a X509 cert file
-func (m *Monkey) SpinnakerX509Cert() string {
+func (m *Bum) SpinnakerX509Cert() string {
 	return m.v.GetString(param.SpinnakerX509Cert)
 }
 
 // SpinnakerX509Key retunrs a path to a X509 key file
-func (m *Monkey) SpinnakerX509Key() string {
+func (m *Bum) SpinnakerX509Key() string {
 	return m.v.GetString(param.SpinnakerX509Key)
 }
 
 // Decryptor returns an interface for decrypting secrets
-func (m *Monkey) Decryptor() string {
+func (m *Bum) Decryptor() string {
 	return m.v.GetString(param.Decryptor)
 }
 
 // OutageChecker returns an interface for checking if there is an ongoing
 // outage
-func (m *Monkey) OutageChecker() string {
+func (m *Bum) OutageChecker() string {
 	return m.v.GetString(param.OutageChecker)
 }
 
 // DatabaseHost returns the hostname the database is running on
-func (m *Monkey) DatabaseHost() string {
+func (m *Bum) DatabaseHost() string {
 	return m.v.GetString(param.DatabaseHost)
 }
 
 // DatabasePort returns the port the database is listening on
-func (m *Monkey) DatabasePort() int {
+func (m *Bum) DatabasePort() int {
 	return m.v.GetInt(param.DatabasePort)
 }
 
 // DatabaseUser returns the database user associated with the credentials
-func (m *Monkey) DatabaseUser() string {
+func (m *Bum) DatabaseUser() string {
 	return m.v.GetString(param.DatabaseUser)
 }
 
-// DatabaseName returns the name of the database that stores the Chaos Monkey
+// DatabaseName returns the name of the database that stores the Chaos Bum
 // state
-func (m *Monkey) DatabaseName() string {
+func (m *Bum) DatabaseName() string {
 	return m.v.GetString(param.DatabaseName)
 }
 
 // DatabaseEncryptedPassword returns an encrypted version of the database
 // credentials
-func (m *Monkey) DatabaseEncryptedPassword() string {
+func (m *Bum) DatabaseEncryptedPassword() string {
 	return m.v.GetString(param.DatabaseEncryptedPassword)
 }
 
 // BindPFlag binds a specific parameter to a pflag
-func (m *Monkey) BindPFlag(parameter string, flag *pflag.Flag) (err error) {
+func (m *Bum) BindPFlag(parameter string, flag *pflag.Flag) (err error) {
 	return m.v.BindPFlag(parameter, flag)
 }
 
@@ -446,10 +446,10 @@ func SetRemoteProvider(name string, factory RemoteConfigFactory) {
 	viper.SupportedRemoteProviders = []string{name}
 }
 
-// CronExpression returns the chaosmonkey main run cron expression.
+// CronExpression returns the chaosbum main run cron expression.
 // It defaults to 2 hour before start_hour on weekdays, if no cron expression
 // is specified in the config
-func (m *Monkey) CronExpression() (string, error) {
+func (m *Bum) CronExpression() (string, error) {
 	defaultCron := "0 %d * * 1-5"
 	cron := m.v.Get(param.CronExpression)
 	if cron == nil {
@@ -485,19 +485,19 @@ func calculateDefaultCronRunHour(startHour int) (int, error) {
 }
 
 // ScheduleCronPath returns the path to which
-// main chaosmonkey crontab is located
-func (m *Monkey) ScheduleCronPath() string {
+// main chaosbum crontab is located
+func (m *Bum) ScheduleCronPath() string {
 	return m.v.GetString(param.ScheduleCronPath)
 }
 
 // SchedulePath returns the path to which main
-// chaosmonkey schedule script(invoked from cron) is located
-func (m *Monkey) SchedulePath() string {
+// chaosbum schedule script(invoked from cron) is located
+func (m *Bum) SchedulePath() string {
 	return m.v.GetString(param.SchedulePath)
 }
 
 // LogPath returns the path to which
 // log files should be written
-func (m *Monkey) LogPath() string {
+func (m *Bum) LogPath() string {
 	return m.v.GetString(param.LogPath)
 }
